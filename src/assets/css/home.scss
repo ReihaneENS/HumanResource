@@ -1,3 +1,50 @@
 .home-wrapper{
-
+  .inner{
+    .title{
+      h2{
+        &::after{
+          content: '';
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          background-color: #1dcd06;
+          margin-left: 15px;
+        }
+      }
+    }
+    .list{
+      margin: 0 auto;
+      .content{
+        ul{
+          direction: rtl;
+          .main-li{
+            color: rgba(0,0,0,0.75);
+            &::before{
+              content: '\203A';
+              font-size: 20px;
+              display: inline-block;
+              transform: rotate(90deg);
+              position: absolute;
+              left: 20px;
+            }
+            ul>li{
+              direction: rtl;
+            }
+          }
+        }
+        .family-title{
+          width: 140px;
+          margin-top: -30px;
+        }
+        .family-title-small{
+          width: 100px;
+          margin-top: -30px;
+          font-family: 'iranDigit';
+        }
+        .new-title{
+          background-color: #f3f3f3;
+        }
+      }
+    }
+  }
 }

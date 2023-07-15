@@ -4,6 +4,17 @@
   src: url("../fonts/Iran-Medium.woff2") format('woff2');
   font-family: 'iran';
 }
+@font-face {
+  src: url("../fonts/IRANSansWeb(FaNum)_Medium.woff2") format('woff2');
+  font-family: 'iranDigit';
+}
 body{
   font-family: 'iran';
+  background-color: #f3f3f3;
+}
+.input-group{
+  .input{
+    width: 48%;
+    text-align: right;
+  }
 }
