@@ -17,7 +17,7 @@
               <form @submit.prevent class="mt-6 text-right cursor-auto " v-if="cardOpen===true&&personId===item.id">
                 <Loading v-if="loading=== true"/>
                 <div v-if="loading===false" class="remove flex justify-end my-6">
-                  <button class="bg-red-600 p-1 rounded w-7 h-7">
+                  <button @click="deleteEmployee()" class="bg-red-600 p-1 rounded w-7 h-7">
                     <img class="w-full h-full" src="../assets/images/delete.png" alt="">
                   </button>
                 </div>
@@ -51,10 +51,13 @@
                   <div class="family-title mr-4 text-center">
                     <h3 class="text-lg text-black bg-white">اعضای خانواده</h3>
                   </div>
-                  <div class="card mt-12 p-4 border rounded" v-for="(item,index) in employeePerson.family" :key="index">
+                  <!--      SHOW & EDIT EMPLOYEE FAMILY MEMBERS          -->
+                  <div class="card mt-12 p-4 border rounded" v-for="(item,index) in family" :key="index">
                     <div class="family-title-small mb-4 mr-4 bg-white text-center flex justify-center items-center">
                       <h3 class="text-lg text-black ml-6">#{{ index + 1 }}</h3>
-                      <button class="bg-red-600 p-1 rounded w-7 h-7">
+                      <button
+                          @click="familyIndex=index;removeFamilyMember()"
+                          class="bg-red-600 p-1 rounded w-7 h-7">
                         <img class="w-full h-full" src="../assets/images/delete.png" alt="">
                       </button>
                     </div>
@@ -78,7 +81,37 @@
                       </div>
                     </div>
                   </div>
-                  <button class="rounded py-2 px-4 bg-blue-600 text-white mt-2">افزودن عضو</button>
+                  <!--      ADD FAMILY MEMBER          -->
+                  <div v-if="createNewFamily===true" class="card mt-12 p-4 border rounded">
+                    <div class="family-title-small mb-4 mr-4 bg-white text-center flex justify-center items-center">
+                      <h3 class="text-lg text-black ml-6">#</h3>
+                    </div>
+                    <div class="input-group mb-4 flex justify-between items-center">
+                      <div class="input flex flex-col">
+                        <label for="name" class="mb-2 text-black">نام</label>
+                        <input class="border p-1 rounded" type="text" id="name" name="name"
+                               v-model="newFamily.name">
+                      </div>
+                      <div class="input flex flex-col">
+                        <label for="lName" class="mb-2 text-black">تاریخ تولد</label>
+                        <input class="border p-1 rounded" type="text" v-model="newFamily.dateOfBirth">
+<!--                        <date-picker locale="en,fa" v-model="newFamily.dateOfBirth" type="datetime"/>-->
+                      </div>
+                    </div>
+                    <div class="input-group mb-4 flex justify-between items-center">
+                      <div class="input flex flex-col">
+                        <label for="name" class="mb-2 text-black">نسبت</label>
+                        <select class="border p-1 rounded" name="relation" id="relation" v-model="newFamily.relation">
+                          <option value="spouse">همسر</option>
+                          <option value="son">پسر</option>
+                          <option value="daughter">دختر</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <button @click="createNewFamily=true" class="rounded py-2 px-4 bg-blue-600 text-white mt-2 text-xs">
+                    افزودن عضو
+                  </button>
                 </div>
                 <div v-if="loading===false" class="w-full flex justify-center">
                   <button @click="editEmployee()" class="rounded py-2 px-4 bg-green-600 text-white mt-2 text-xs">
@@ -97,12 +130,12 @@
                   <div class="input-group mb-4 flex justify-between items-center">
                     <div class="input flex flex-col">
                       <label for="name" class="mb-2 text-black">نام</label>
-                      <input class="border p-1 rounded" type="text" id="name" name="name"
+                      <input class="border p-1 rounded" required type="text" id="name" name="name"
                              v-model="firstName">
                     </div>
                     <div class="input flex flex-col">
                       <label for="lastName" class="mb-2 text-black">نام خانوادگی</label>
-                      <input class="border p-1 rounded" type="text" id="lastName" name="lastName"
+                      <input class="border p-1 rounded" required type="text" id="lastName" name="lastName"
                              v-model="lastName">
                     </div>
                   </div>
@@ -111,6 +144,7 @@
                       <label for="dateOfBirth" class="mb-2 text-black">تاریخ تولد</label>
                       <input class="border p-1 rounded" type="text" id="dateOfBirth" name="dateOfBirth"
                              v-model="dateOfBirth">
+<!--                      <date-picker v-model="dateOfBirth" type="datetime"/>-->
                     </div>
                     <div class="input flex flex-col">
                       <label for="email" class="mb-2 text-black">ایمیل</label>
@@ -119,13 +153,15 @@
                     </div>
                   </div>
                 </div>
+                <!--      ADD NEW EMPLOYEE FAMILY MEMBER          -->
                 <div class="mt-12 border rounded p-4">
                   <div class="family-title mr-4 text-center">
                     <h3 class="text-lg text-black bg-white">اعضای خانواده</h3>
                   </div>
-                  <div class="card mt-12 p-4 border rounded">
+                  <div v-if="createNewFamily===true" class="card mt-12 p-4 border rounded"
+                       v-for="(item,index) in family">
                     <div class="family-title-small mb-4 mr-4 bg-white text-center flex justify-center items-center">
-                      <h3 class="text-lg text-black ml-6"></h3>
+                      <h3 class="text-lg text-black ml-6">#</h3>
                       <button class="bg-red-600 p-1 rounded w-7 h-7">
                         <img class="w-full h-full" src="../assets/images/delete.png" alt="">
                       </button>
@@ -134,18 +170,19 @@
                       <div class="input flex flex-col">
                         <label for="name" class="mb-2 text-black">نام</label>
                         <input class="border p-1 rounded" type="text" id="name" name="name"
-                               v-model="familyInput.name">
+                               v-model="item.name">
                       </div>
                       <div class="input flex flex-col">
-                        <label for="dateOfBirth" class="mb-2 text-black">تاریخ تولد</label>
+                        <label for="lName" class="mb-2 text-black">تاریخ تولد</label>
                         <input class="border p-1 rounded" type="text" id="dateOfBirth" name="dateOfBirth"
-                               v-model="familyInput.dateOfBirth">
+                               v-model="dateOfBirth">
+<!--                        <date-picker v-model="item.dateOfBirth" type="datetime"/>-->
                       </div>
                     </div>
                     <div class="input-group mb-4 flex justify-between items-center">
                       <div class="input flex flex-col">
-                        <label for="relation" class="mb-2 text-black">نسبت</label>
-                        <select class="border p-1 rounded" name="relation" id="relation" v-model="familyInput.relation">
+                        <label for="name" class="mb-2 text-black">نسبت</label>
+                        <select class="border p-1 rounded" name="relation" id="relation" v-model="item.relation">
                           <option value="spouse">همسر</option>
                           <option value="son">پسر</option>
                           <option value="daughter">دختر</option>
@@ -153,7 +190,7 @@
                       </div>
                     </div>
                   </div>
-                  <button @click="addFamilyMember()" class="rounded py-2 px-4 bg-blue-600 text-white mt-2">افزودن عضو
+                  <button @click="createNewFamily=true" class="rounded py-2 px-4 bg-blue-600 text-white mt-2">افزودن عضو
                   </button>
                 </div>
                 <div class="flex justify-between items-center">
@@ -174,17 +211,28 @@
         </div>
       </div>
     </div>
+    <success v-if="success===true"/>
+    <Edited v-if="edited===true"/>
+    <Deleted v-if="deleted===true"/>
   </div>
 </template>
 
 <script>
 import Loading from "@/components/Loading";
+import Success from "@/components/Success";
+import Edited from "@/components/Edited";
+import Deleted from "@/components/Deleted";
 
 export default {
-  components: {Loading},
+  components: {Success, Edited, Deleted, Loading},
   data() {
     return {
+      familyIndex: null,
+      success: false,
+      edited: false,
+      deleted: false,
       createNew: false,
+      createNewFamily: false,
       loading: true,
       token: 'reyhane-ebrahimi-484ca754-d020-4493-add2-17fb391cec4e',
       personId: null,
@@ -198,11 +246,12 @@ export default {
           relation: ''
         }
       ],
-      familyInput: {
+      newFamily: {
         name: '',
         dateOfBirth: '',
-        relation: '',
-      },
+        relation: ''
+      }
+      ,
       firstName: '',
       lastName: '',
       email: '',
@@ -227,10 +276,6 @@ export default {
     this.fetchEmployees();
   },
   methods: {
-    addFamilyMember() {
-      this.family.push(this.familyInput);
-      this.removedItem = this.family.shift();
-    },
     toggleCard() {
       this.cardOpen = true;
       let card = document.getElementById('main-li');
@@ -265,14 +310,7 @@ export default {
             this.lastName = this.employeePerson.lastName;
             this.email = this.employeePerson.email;
             this.dateOfBirth = this.employeePerson.dateOfBirth;
-            for (let i = 0; i <= this.employeePerson.family.length; i++) {
-              if (this.employeePerson.family[i]) {
-                this.familyInput.name = this.employeePerson.family[i].name;
-                this.familyInput.dateOfBirth = this.employeePerson.family[i].dateOfBirth;
-                this.familyInput.relation = this.employeePerson.family[i].relation;
-                this.family.push(this.familyInput);
-              }
-            }
+            this.family = this.employeePerson.family;
           })
           .catch(error => {
             console.log(error)
@@ -295,23 +333,43 @@ export default {
             },
           })
           .then((res) => {
-            console.log(res)
+            console.log(res);
+            this.createNew = false;
+            this.success = true;
+            setTimeout(
+                () => {
+                  this.success = false
+                }, 5000
+            )
+            this.fetchEmployees();
+            this.fetchEmployeeData();
           })
           .catch((err) => {
             console.log(err)
           })
     },
+    removeFamilyMember() {
+      console.log(this.family)
+      this.family.splice(this.familyIndex, 1);
+      console.log(this.family)
+      this.editEmployee();
+      this.fetchEmployeeData();
+    },
     editEmployee() {
       const apiUrl = 'https://goharp-task1.iran.liara.run';
       const token = 'reyhane-ebrahimi-484ca754-d020-4493-add2-17fb391cec4e';
       const employeeId = this.employeePerson.id;
+      if (this.newFamily.name){
+        this.family.push(this.newFamily);
+        this.newFamily = {};
+      }
       axios.put(`${apiUrl}/employee/${employeeId}`,
           {
             "firstName": this.firstName,
             "lastName": this.lastName,
             "dateOfBirth": this.dateOfBirth,
             "email": this.email,
-            "family": this.employeePerson.family,
+            "family": this.family,
           },
           {
             headers: {
@@ -319,6 +377,36 @@ export default {
             },
           })
           .then((res) => {
+            this.edited = true;
+            setTimeout(
+                () => {
+                  this.edited = false
+                }, 5000
+            )
+            this.fetchEmployees();
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    },
+    deleteEmployee() {
+      const apiUrl = 'https://goharp-task1.iran.liara.run';
+      const token = 'reyhane-ebrahimi-484ca754-d020-4493-add2-17fb391cec4e';
+      const employeeId = this.employeePerson.id;
+      axios.delete(`${apiUrl}/employee/${employeeId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            },
+          })
+          .then((res) => {
+            this.deleted = true;
+            setTimeout(
+                () => {
+                  this.deleted = false
+                }, 5000
+            )
+            this.fetchEmployees();
             console.log(res)
           })
           .catch((err) => {
